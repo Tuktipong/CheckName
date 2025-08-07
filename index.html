@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบเช็คชื่อนักเรียน</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .datetime {
+            background: rgba(255,255,255,0.2);
+            padding: 10px 20px;
+            border-radius: 25px;
+            display: inline-block;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+        
+        .logout-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            border: 2px solid white;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .logout-btn:hover {
+            background: white;
+            color: #ff9a9e;
+        }
+        
+        .login-container {
+            padding: 50px;
+            text-align: center;
+        }
+        
+        .login-box {
+            max-width: 400px;
+            margin: 0 auto;
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .login-box h2 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: #ff9a9e;
+        }
+        
+        .btn-login {
+            width: 100%;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .btn-login:hover {
+            transform: translateY(-2px);
+        }
+        
+        .error {
+            color: #e74c3c;
+            margin-top: 10px;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            padding: 20px;
+            border-radius: 12px;
+        }
+        
+        .room-selector select, .period-selector select {
+            padding: 12px 20px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            background: white;
+            cursor: pointer;
+        }
+        
+        .room-selector select:focus, .period-selector select:focus {
+            outline: none;
+            border-color: #ff9a9e;
+        }
+        
+        .reset-btn, .save-btn {
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+            margin: 0 5px;
+        }
+        
+        .reset-btn {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .reset-btn:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+        }
+        
+        .save-btn {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .save-btn:hover {
+            background: #229954;
+            transform: translateY(-2px);
+        }
+        
+        .student-list {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .student-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+        
+        .student-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+        
+        .student-info {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .student-number {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        
+        .student-name {
+            font-weight: bold;
+            color: #333;
+            font-size: 16px;
+            min-width: 200px;
+        }
+        
+        .student-nickname {
+            color: #666;
+            font-size: 14px;
+            font-style: italic;
+            background: #f0f0f0;
+            padding: 4px 10px;
+            border-radius: 15px;
+        }
+        
+        .status-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .status-btn {
+            padding: 8px 16px;
+            border: 2px solid #ddd;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s;
+            background: white;
+            color: #666;
+        }
+        
+        .status-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .status-btn.present.active {
+            background: #2ecc71;
+            color: white;
+            border-color: #2ecc71;
+        }
+        
+        .status-btn.late.active {
+            background: #f39c12;
+            color: white;
+            border-color: #f39c12;
+        }
+        
+        .status-btn.absent.active {
+            background: #e74c3c;
+            color: white;
+            border-color: #e74c3c;
+        }
+        
+        .status-btn.leave.active {
+            background: #9b59b6;
+            color: white;
+            border-color: #9b59b6;
+        }
+        
+        .summary {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            color: #333;
+            padding: 25px;
+            border-radius: 12px;
+            margin-top: 30px;
+            text-align: center;
+        }
+        
+        .summary h3 {
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+            color: #d35400;
+        }
+        
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+        }
+        
+        .stat-item {
+            background: rgba(255,255,255,0.7);
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid rgba(211,84,0,0.3);
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #d35400;
+        }
+        
+        .no-room {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+            font-style: italic;
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border-radius: 12px;
+        }
+        
+        .period-info {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .logout-btn {
+                position: relative;
+                top: auto;
+                right: auto;
+                margin-top: 20px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .student-item {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .status-buttons {
+                justify-content: center;
+            }
+            
+            .summary-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 ระบบเช็คชื่อนักเรียน</h1>
+            <div class="datetime" id="datetime">กำลังโหลด...</div>
+            <button class="logout-btn" id="logoutBtn" onclick="logout()">ออกจากระบบ</button>
+        </div>
+        
+        <!-- Login Screen -->
+        <div class="login-container" id="loginScreen">
+            <div class="login-box">
+                <h2>🔐 เข้าสู่ระบบ</h2>
+                <div class="input-group">
+                    <input type="password" id="passwordInput" placeholder="ป้อนรหัสผ่าน" maxlength="5">
+                </div>
+                <button class="btn-login" onclick="login()">เข้าสู่ระบบ</button>
+                <div class="error" id="loginError"></div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="content" id="mainContent" style="display: none;">
+            <div class="controls">
+                <div class="room-selector">
+                    <label for="roomSelect" style="margin-right: 10px; font-weight: bold;">เลือกห้อง:</label>
+                    <select id="roomSelect" onchange="changeRoom()">
+                        <option value="">-- เลือกห้อง --</option>
+                        <option value="5">ห้อง 5</option>
+                        <option value="15">ห้อง 15</option>
+                        <option value="16">ห้อง 16</option>
+                    </select>
+                </div>
+                <div class="period-selector">
+                    <label for="periodSelect" style="margin-right: 10px; font-weight: bold;">คาบเรียน:</label>
+                    <select id="periodSelect" onchange="changePeriod()">
+                        <option value="1">คาบที่ 1</option>
+                        <option value="2">คาบที่ 2</option>
+                        <option value="3">คาบที่ 3</option>
+                        <option value="4">คาบที่ 4</option>
+                        <option value="5">คาบที่ 5</option>
+                        <option value="6">คาบที่ 6</option>
+                        <option value="7">คาบที่ 7</option>
+                        <option value="8">คาบที่ 8</option>
+                    </select>
+                </div>
+                <div>
+                    <button class="save-btn" onclick="saveCurrentPeriod()">💾 บันทึกคาบนี้</button>
+                    <button class="reset-btn" onclick="resetCurrentPeriod()">🔄 รีเซ็ทคาบนี้</button>
+                </div>
+            </div>
+            
+            <div class="period-info" id="periodInfo" style="display: none;">
+                <span id="currentPeriodText">คาบที่ 1</span> - <span id="currentRoomText">ห้อง</span>
+            </div>
+            
+            <div id="studentContainer">
+                <div class="no-room">กรุณาเลือกห้องเรียนและคาบเรียน</div>
+            </div>
+            
+            <div class="summary" id="summary" style="display: none;">
+                <h3>📊 สรุปการเข้าชั้นเรียน</h3>
+                <div class="summary-stats">
+                    <div class="stat-item">
+                        <div class="stat-number" id="presentCount">0</div>
+                        <div>มา</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="lateCount">0</div>
+                        <div>มาสาย</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="absentCount">0</div>
+                        <div>ขาด</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="leaveCount">0</div>
+                        <div>ลา</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ข้อมูลนักเรียน (ชื่อ-สกุล, ชื่อเล่น)
+        const studentsData = {
+            "5": [
+                ["ด.ช.กฤตัช สีโท", "โคตะ"],
+                ["ด.ช.ก้องเกียรติคุณ เพ็งมีศรี", "ปลูก"],
+                ["ด.ช.คามีน วงศ์ภักดี", "กังฟู"],
+                ["ด.ช.จักรพรรดิ สลั", "ออกัส"],
+                ["ด.ช.ชลชาสน์ แก้วไชยะ", "ภูผา"],
+                ["ด.ช.ณภัทร วิทยาวรากุล", "รีโน่"],
+                ["ด.ช.ณัฐภัทร ภูอวด", "หมีพูห์"],
+                ["ด.ช.ธนัช จัตวัฒนกุล", "กั๊ตจัง"],
+                ["ด.ช.ธีธัช นาเสงี่ยม", "ธีม"],
+                ["ด.ช.ปิยังกูร ผองแก้ว", "เปา"],
+                ["ด.ช.พงศกร ตรีศาสตร์", "บูม"],
+                ["ด.ช.พชรพล พรมเสน", "เตเต"],
+                ["ด.ช.พิชิตพล มหามาตร", "ฉลาม"],
+                ["ด.ช.พิทวัส สีนวนแสง", "ปันปัน"],
+                ["ด.ช.ภัทรพล ไสยกุล", "ลม"],
+                ["ด.ช.ภูมิบดินทร์ ศรีดี", "มังกร"],
+                ["ด.ช.รชต แสนโสม", "กาย"],
+                ["ด.ช.อธิศ กุลจิตติเธียร", "โซมัช"],
+                ["ด.ญ.รมิดา เอี่ยมไกรอมร", "ไพลิน"],
+                ["ด.ญ.กชพร กีรติเมธิน", "เอวา"],
+                ["ด.ญ.กัญญาภัทร ฮอศิริ", "เนเน่"],
+                ["ด.ญ.กานต์ญาณี ชัยอินทร์", "หม่อนไหม"],
+                ["ด.ญ.กานต์ธีรา ตั้งไพโรจน์วงศ์", "แพรวา"],
+                ["ด.ญ.เขมรัวรินทร์ จันทร์ลาศรี", "ไออุ่น"],
+                ["ด.ญ.คุญพิชามญช์ เส่งมูล", "ยูมิ"],
+                ["ด.ญ.ชิสา พรรัตนอุดม", "เจแปน"],
+                ["ด.ญ.ชญา ชาญบรรพต", "ชา"],
+                ["ด.ญ.ณัฐภัสสร กิตติโพวานนท์", "มิ้นท์"],
+                ["ด.ญ.ธนิสร ขานทะราชา", "มัดหมี่"],
+                ["ด.ญ.นุตประวีณ์ น้อยเมล์", "เฟย์"],
+                ["ด.ญ.ประกายกาญจน์ แสนพิมพ์พา", "ใบเฟิร์น"],
+                ["ด.ญ.ปุญญานินท์ กิตติธนาภิภักดิ์", "มะมิ้งค์"],
+                ["ด.ญ.พชรดา สระฏัน", "พระพาย"],
+                ["ด.ญ.พิชชาภา รักษาเคน", "เปียโน"],
+                ["ด.ญ.พิชญาภา อุบลจร", "ปีใหม่"],
+                ["ด.ญ.พิมพ์ชนก คิดควร", "พิมพ์"],
+                ["ด.ญ.ภิรัญญา นักร้อง", "ฟ้าใส"],
+                ["ด.ญ.มธุรดา อินฐาโชติ", "ใบเฟิร์น"],
+                ["ด.ญ.วริยา พัฒนานนท์", "ฟ้าใส"],
+                ["ด.ญ.วิชญาพร ศรีมุลตรี", "พริ้ง"],
+                ["ด.ญ.ศิริวรินทร์ ไชยแสงคำ", "ปราย"],
+                ["ด.ญ.ปัญจมาพร ช่วงชิต", "ปัญจี้"]
+            ],
+            "15": [
+                ["ด.ช.กฤติเดช แสงจันทร์", "เหนือ"],
+                ["ด.ช.คณาธิป จันทร์โท", "มีตังค์"],
+                ["ด.ช.ณฐชนนท์ เจิมนาค", "ตังค์ๆ"],
+                ["ด.ช.ณัชพล ด่านจง", "ภูผา"],
+                ["ด.ช.ณัฏฐกิตติ์ โสทอง", "ภูมิ"],
+                ["ด.ช.ธนกฤต ประสมพล", "ขันหมาก"],
+                ["ด.ช.ธนพล โคตรกว้าง", "โฟกัส"],
+                ["ด.ช.ธีรโชติ ตุ้ยแคน", "ไนท์"],
+                ["ด.ช.นภัทร สมพิทักษ์", "นาจา"],
+                ["ด.ช.นัธทวัฒน์ จันทร์ดาประดิษฐ์", "มิก"],
+                ["ด.ช.พัชรวัช วันเพ็ชร์", "ปัน"],
+                ["ด.ช.พัฒนศักดิ์ จำนงค์พิพัฒน์", "โอ๊ค"],
+                ["ด.ช.พีรภัทร นพพันธ์", "ป่าน"],
+                ["ด.ช.ภัททิยะ จินตระวีรกุล", "โนอาห์"],
+                ["ด.ช.ภากร เสริฐกวี", "โฟ้ท"],
+                ["ด.ช.ภูวัฒน์ จิรันดร", "พี"],
+                ["ด.ช.มังกร บรรดิษฐ์", "มังกร"],
+                ["ด.ญ.กวินธิดา อาษารินทร์", "โมนา"],
+                ["ด.ญ.กัลยกร ภูผาลัย", "ปรุง"],
+                ["ด.ญ.จันทรัสม์ ถุงน้ำคำ", "ข้าวฟ่าง"],
+                ["ด.ญ.ชาลิสา คุณรักษ์", "เมย์"],
+                ["ด.ญ.ญาธิชา พิชญกุลมงคล", "เจ้าหญิง"],
+                ["ด.ญ.ณัฐกฤตา สาพรมมา", "ขิม"],
+                ["ด.ญ.นันท์นภัส วิเศษสัตย์", "นภัส"],
+                ["ด.ญ.บุณยาพร ภูธร", "นาเดียร์"],
+                ["ด.ญ.เบญจรัตน์ คำคูณ", "ข้าวหอม"],
+                ["ด.ญ.เบญญาภา ไอยะ", "มีต"],
+                ["ด.ญ.ปุญญิศา สายส่อ", "ปอถัก"],
+                ["ด.ญ.พิชามญชุ์ วัฒนศิริ", "ชมพู"],
+                ["ด.ญ.พิมพ์ชนก วัฒน์วรกาญจน์", "พิม"],
+                ["ด.ญ.มาลีรัตน์ นารี", "ต้นข้าว"],
+                ["ด.ญ.วรัญช์รัตน์ อภิชาตบรรลือ", "ปันปัน"],
+                ["ด.ญ.ศิริกานต์ อักษรพิมพ์", "ยิปโซ"],
+                ["ด.ญ.สิรินดา จุลถาวร", "ปันปัน"],
+                ["ด.ญ.สุทิชา ทองสุข", "พอใจ"],
+                ["ด.ญ.สุมนพัชร์ หยกกชพันธ์งาม", "ดีดี"],
+                ["ด.ญ.อนัญญา สุวรรณ์", "แพรวา"],
+                ["ด.ญ.อรชพร มาตราช", "ไอซ์"],
+                ["ด.ญ.จารุกัญญ์ ขวัญแพร", "ไอเดีย"],
+                ["ด.ญ.ชมรวีวรรณ เทศเวช", "วาววา"]
+            ],
+            "16": [
+                ["ด.ช.กนกพล วัลวาล", "สายฟ้า"],
+                ["ด.ช.กนธี แซ่เต็ง", "ออก้า"],
+                ["ด.ช.จักรกฤช อัครสูริย์", "สายธาร"],
+                ["ด.ช.ชนินทร์ ไชยกุฉิน", "เกื้อ"],
+                ["ด.ช.ชวิกร บุญไทย", "คิม"],
+                ["ด.ช.ดนุพัฒน์ กินเสน", "ภูมิ"],
+                ["ด.ช.แทนประชา ชุมฝาง", "แทน"],
+                ["ด.ช.ธนกฤต ทิพย์แสงทอง", "นะโม"],
+                ["ด.ช.ธนพัฒน์ ต้นกันยา", "ฟีฟ่า"],
+                ["ด.ช.ธนภัทร ดาวพันธ์", "การ์ด"],
+                ["ด.ช.ปฐมพงษ์ มงคล", "ปฐม"],
+                ["ด.ช.ปุญญพัตน์ พรมรัตนชัยกุล", "ฮ่องเต้"],
+                ["ด.ช.พงศพัศ ประกอบทอง", "คอปเตอร์"],
+                ["ด.ช.ภีษมะ สิทธิพล", "โอม"],
+                ["ด.ช.วิชชายุทธ กฐินเทศ", "อั้ม"],
+                ["ด.ช.ศุภณัฐ สิงห์เกิด", "เหนือ"],
+                ["ด.ช.สถิตคุณ โพธิ์ศรี", "วายุ"],
+                ["ด.ช.ชินาธิป คุยเพียภูมิ", "ภูมิ"],
+                ["ด.ญ.กวินธิดา ศรีน้อยขาว", "แก้ม"],
+                ["ด.ญ.กัญญ์กุลณัช พลมาตร", "กอไหม"],
+                ["ด.ญ.กัญญาภัทร ศรีสาร", "ปั้นหยา"],
+                ["ด.ญ.กุลพิชชา บุญพร้อม", "ปันหยี"],
+                ["ด.ญ.ฉัตรทิพย์ น้อยวัน", "ต้นหอม"],
+                ["ด.ญ.ณิชานันท์ พรมมานอก", "ข้าว"],
+                ["ด.ญ.นันท์นภัส ปิ่นแคน", "เทียร์"],
+                ["ด.ญ.นันท์นภัส เกษตรทัต", "ปันปัน"],
+                ["ด.ญ.นิชานันท์ สีกวนชา", "หวาน"],
+                ["ด.ญ.ปวริศา ยศพิมพา", "ริศา"],
+                ["ด.ญ.ปิญชาน์ฉัตร น้อยสมบัติ", "ปลาย"],
+                ["ด.ญ.พรชนก แรมรี", "น้ำมนต์"],
+                ["ด.ญ.พิมพ์ชมัย ศรีรุ่งเรือง", "มัดไหม"],
+                ["ด.ญ.ภัทรพร เผ่าบ้านฝาง", "แอร์พอร์ท"],
+                ["ด.ญ.ภีรชญา ทองเดช", "นามิ"],
+                ["ด.ญ.เรมิตา จูตะวิริยะ", "เรมิ"],
+                ["ด.ญ.วิรัลพัชร นำวงศ์สุวรรณ", "ไอริน"],
+                ["ด.ญ.สุภัสรา สดใส", "ข้าวหอม"],
+                ["ด.ญ.อัจฉริยา ศรีเเสง", "ปีใหม่"],
+                ["ด.ญ.อารีวรรณ ดีปักษี", "กะตังค์"],
+                ["ด.ญ.ฐิติวรดา อรรคนิมาตร์", "ข้าวฟ่าง"]
+            ]
+        };
+
+        let isLoggedIn = false;
+        let currentRoom = '';
+        let currentPeriod = '1';
+        let attendanceData = {};
+
+        // โหลดข้อมูลจาก localStorage
+        function loadData() {
+            const savedLoginStatus = localStorage.getItem('attendance_logged_in');
+            const savedAttendance = localStorage.getItem('attendance_data');
+            const savedRoom = localStorage.getItem('current_room');
+            const savedPeriod = localStorage.getItem('current_period');
+
+            if (savedLoginStatus === 'true') {
+                isLoggedIn = true;
+                showMainContent();
+            }
+
+            if (savedAttendance) {
+                attendanceData = JSON.parse(savedAttendance);
+            }
+
+            if (savedRoom) {
+                currentRoom = savedRoom;
+                document.getElementById('roomSelect').value = currentRoom;
+            }
+
+            if (savedPeriod) {
+                currentPeriod = savedPeriod;
+                document.getElementById('periodSelect').value = currentPeriod;
+            }
+
+            displayStudents();
+        }
+
+        // บันทึกข้อมูลลง localStorage
+        function saveData() {
+            localStorage.setItem('attendance_logged_in', isLoggedIn.toString());
+            localStorage.setItem('attendance_data', JSON.stringify(attendanceData));
+            localStorage.setItem('current_room', currentRoom);
+            localStorage.setItem('current_period', currentPeriod);
+        }
+
+        // อัปเดตเวลา
+        function updateDateTime() {
+            const now = new Date();
+            const options = {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                timeZone: 'Asia/Bangkok'
+            };
+            
+            document.getElementById('datetime').textContent = 
+                now.toLocaleDateString('th-TH', options);
+        }
+
+        // เข้าสู่ระบบ
+        function login() {
+            const password = document.getElementById('passwordInput').value;
+            const errorDiv = document.getElementById('loginError');
+
+            if (password === '39020') {
+                isLoggedIn = true;
+                showMainContent();
+                errorDiv.textContent = '';
+                saveData();
+            } else {
+                errorDiv.textContent = 'รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่';
+            }
+        }
+
+        // ออกจากระบบ
+        function logout() {
+            if (confirm('คุณต้องการออกจากระบบใช่หรือไม่?')) {
+                isLoggedIn = false;
+                currentRoom = '';
+                document.getElementById('loginScreen').style.display = 'block';
+                document.getElementById('mainContent').style.display = 'none';
+                document.getElementById('passwordInput').value = '';
+                document.getElementById('loginError').textContent = '';
+                saveData();
+            }
+        }
+
+        // แสดงหน้าหลัก
+        function showMainContent() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+        }
+
+        // เปลี่ยนห้อง
+        function changeRoom() {
+            const roomSelect = document.getElementById('roomSelect');
+            currentRoom = roomSelect.value;
+            displayStudents();
+            saveData();
+        }
+
+        // เปลี่ยนคาบเรียน
+        function changePeriod() {
+            const periodSelect = document.getElementById('periodSelect');
+            currentPeriod = periodSelect.value;
+            displayStudents();
+            saveData();
+        }
+
+        // แสดงรายชื่อนักเรียน
+        function displayStudents() {
+            const container = document.getElementById('studentContainer');
+            const periodInfo = document.getElementById('periodInfo');
+            const currentPeriodText = document.getElementById('currentPeriodText');
+            const currentRoomText = document.getElementById('currentRoomText');
+            
+            if (!currentRoom || !currentPeriod) {
+                container.innerHTML = '<div class="no-room">กรุณาเลือกห้องเรียนและคาบเรียน</div>';
+                document.getElementById('summary').style.display = 'none';
+                periodInfo.style.display = 'none';
+                return;
+            }
+
+            // แสดงข้อมูลคาบและห้อง
+            currentPeriodText.textContent = `คาบที่ ${currentPeriod}`;
+            currentRoomText.textContent = `ห้อง ${currentRoom}`;
+            periodInfo.style.display = 'block';
+
+            const students = studentsData[currentRoom];
+            
+            if (!students || students.length === 0) {
+                container.innerHTML = '<div class="no-room">ยังไม่มีข้อมูลนักเรียนสำหรับห้องนี้</div>';
+                document.getElementById('summary').style.display = 'none';
+                return;
+            }
+
+            let html = '<div class="student-list">';
+            
+            students.forEach((student, index) => {
+                const studentKey = `${currentRoom}_${currentPeriod}_${index}`;
+                const currentStatus = attendanceData[studentKey] || '';
+                const studentNumber = index + 1;
+                
+                html += `
+                    <div class="student-item">
+                        <div class="student-info">
+                            <div class="student-number">${studentNumber}</div>
+                            <div class="student-name">${student[0]}</div>
+                            <div class="student-nickname">${student[1]}</div>
+                        </div>
+                        <div class="status-buttons">
+                            <button class="status-btn present ${currentStatus === 'present' ? 'active' : ''}" 
+                                    onclick="setStatus('${studentKey}', 'present')">มา</button>
+                            <button class="status-btn late ${currentStatus === 'late' ? 'active' : ''}" 
+                                    onclick="setStatus('${studentKey}', 'late')">มาสาย</button>
+                            <button class="status-btn absent ${currentStatus === 'absent' ? 'active' : ''}" 
+                                    onclick="setStatus('${studentKey}', 'absent')">ขาด</button>
+                            <button class="status-btn leave ${currentStatus === 'leave' ? 'active' : ''}" 
+                                    onclick="setStatus('${studentKey}', 'leave')">ลา</button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            container.innerHTML
